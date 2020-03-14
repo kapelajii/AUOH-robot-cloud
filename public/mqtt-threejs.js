@@ -166,6 +166,7 @@ const load_geometries = async () => {
     }
 };
 
+// get robot geometries 
 load_geometries();
 
 // Use orbit controls to control camera with mouse
