@@ -28,6 +28,7 @@ let far = 1000; // meters
  */
 
 let camera = new THREE.PerspectiveCamera( view_angle, width / height, near, far );
+
 // default camera is located in origo
 // move camera 5 meters in every direction
 camera.position.x = 5;
@@ -43,3 +44,15 @@ const animate = () => {
     renderer.render(scene,camera);
 };
 animate();
+
+// Window resize function 
+const resize = () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+};
+
+// Run resize function 
+window.onresize = resize;
