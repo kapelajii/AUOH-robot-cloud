@@ -8,7 +8,7 @@ const margin = {
   left: 50
 };
 
-let width = window.innerWidth - margin.left - margin.right;
+let width = window.innerWidth - margin.left - margin.right
 let height = window.innerHeight - margin.top - margin.bottom;
 
 const svg = d3
@@ -157,6 +157,9 @@ const resize = () => {
   update_chart();
 };
 
+
+d3.select(window).on('resize', resize);
+
 //update_chart()
 const update_chart = () => {
     let x_max = Date.parse(joint_datas[joint_datas.length - 1].time);
@@ -189,7 +192,7 @@ const update_chart = () => {
 
 
 // get data from MQTT server
-const mqtt_client = mqtt.connect("wss://auoh20-mqtt-broker.herokuapp.com/");
+const mqtt_client = mqtt.connect('wss://auoh20-mqtt-broker.herokuapp.com/');
 mqtt_client.on("connect", () => {
   console.log("connected to mqtt broker");
   mqtt_client.subscribe("joints");
