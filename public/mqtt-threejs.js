@@ -103,12 +103,17 @@ const load_stl = (url) => {
     });
 };
 
-// dark gray color for robot parts 
+// dark gray color for robot base 
 let darkGray = new THREE.MeshLambertMaterial({
     color : 0x111111
 });
 
-// array for loaded stl-files
+// Fanuc yellow for joints
+let yellow= new THREE.MeshLambertMaterial({
+    color : 0xFFFF000
+});
+
+// array for all joint geometries
 let joints =  [];
 
 const load_geometries = async () => {
@@ -125,7 +130,7 @@ const load_geometries = async () => {
         let joint1_2= await load_stl('./FANUC_R2000iA165F-STL/J1-2.stl');
         // merge joint1_2 to joint1 parts together
         joint1.merge(joint1_2);
-        joints.push(new THREE.Mesh(joint1, darkGray));
+        joints.push(new THREE.Mesh(joint1, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[1].geometry.scale(0.001, 0.001, 0.001);
         scene.add(joints[1]);
@@ -133,28 +138,28 @@ const load_geometries = async () => {
     }{
         // get and draw joint 2
         let joint2= await load_stl('./FANUC_R2000iA165F-STL/J2.stl');
-        joints.push(new THREE.Mesh(joint2, darkGray));
+        joints.push(new THREE.Mesh(joint2, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[2].geometry.scale(0.001, 0.001, 0.001);
         scene.add(joints[2]);
     }{
         // get and draw joint 3
         let joint3= await load_stl('./FANUC_R2000iA165F-STL/J3.stl');
-        joints.push(new THREE.Mesh(joint3, darkGray));
+        joints.push(new THREE.Mesh(joint3, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[3].geometry.scale(0.001, 0.001, 0.001);
         scene.add(joints[3]);
     }{
         // get and draw joint 4
         let joint4= await load_stl('./FANUC_R2000iA165F-STL/J4.stl');
-        joints.push(new THREE.Mesh(joint4, darkGray));
+        joints.push(new THREE.Mesh(joint4, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[4].geometry.scale(0.001, 0.001, 0.001);
         scene.add(joints[4]);
     }{
         // get and draw joint 5
         let joint5= await load_stl('./FANUC_R2000iA165F-STL/J5.stl');
-        joints.push(new THREE.Mesh(joint5, darkGray));
+        joints.push(new THREE.Mesh(joint5, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[5].geometry.scale(0.001, 0.001, 0.001);
         scene.add(joints[5]);
@@ -163,10 +168,17 @@ const load_geometries = async () => {
 
 load_geometries();
 
+// Use orbit controls to control camera with mouse
+const orbit_controls = new THREE.OrbitControls(camera, renderer.domElement);
+orbit_controls.target = new THREE.Vector3(0,0,0);
+
+//-----------------------
 
 // draw function
 const animate = () => {
     requestAnimationFrame(animate);
+    //update camera location when using mouse to rotating
+    orbit_controls.update();
     renderer.render(scene,camera);
 };
 
