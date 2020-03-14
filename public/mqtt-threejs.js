@@ -103,22 +103,62 @@ const load_stl = (url) => {
     });
 };
 
-// dark gray color for robot parts mesh
+// dark gray color for robot parts 
 let darkGray = new THREE.MeshLambertMaterial({
     color : 0x111111
 });
 
+// array for loaded stl-files
+let joints =  [];
+
 const load_geometries = async () => {
-    
-    // get and draw robot base
-    let geometry = await load_stl('./FANUC_R2000iA165F-STL/BASE.stl');
-    let mesh = new THREE.Mesh(geometry, darkGray);
-    // model is loaded in mm so it need to scale to meters
-    mesh.geometry.scale(0.001, 0.001, 0.001);
-    scene.add(mesh);
-
-
-
+    {
+        // get and draw robot base
+        let robot_base = await load_stl('./FANUC_R2000iA165F-STL/BASE.stl');
+        joints.push(new THREE.Mesh(robot_base, darkGray));
+        // model is loaded in mm so it need to scale to meters
+        joints[0].geometry.scale(0.001, 0.001, 0.001);
+        scene.add(joints[0]);
+    }{
+        // get and draw joint 1
+        let joint1= await load_stl('./FANUC_R2000iA165F-STL/J1-1.stl');
+        let joint1_2= await load_stl('./FANUC_R2000iA165F-STL/J1-2.stl');
+        // merge joint1_2 to joint1 parts together
+        joint1.merge(joint1_2);
+        joints.push(new THREE.Mesh(joint1, darkGray));
+        // model is loaded in mm so it need to scale to meters
+        joints[1].geometry.scale(0.001, 0.001, 0.001);
+        scene.add(joints[1]);
+      
+    }{
+        // get and draw joint 2
+        let joint2= await load_stl('./FANUC_R2000iA165F-STL/J2.stl');
+        joints.push(new THREE.Mesh(joint2, darkGray));
+        // model is loaded in mm so it need to scale to meters
+        joints[2].geometry.scale(0.001, 0.001, 0.001);
+        scene.add(joints[2]);
+    }{
+        // get and draw joint 3
+        let joint3= await load_stl('./FANUC_R2000iA165F-STL/J3.stl');
+        joints.push(new THREE.Mesh(joint3, darkGray));
+        // model is loaded in mm so it need to scale to meters
+        joints[3].geometry.scale(0.001, 0.001, 0.001);
+        scene.add(joints[3]);
+    }{
+        // get and draw joint 4
+        let joint4= await load_stl('./FANUC_R2000iA165F-STL/J4.stl');
+        joints.push(new THREE.Mesh(joint4, darkGray));
+        // model is loaded in mm so it need to scale to meters
+        joints[4].geometry.scale(0.001, 0.001, 0.001);
+        scene.add(joints[4]);
+    }{
+        // get and draw joint 5
+        let joint5= await load_stl('./FANUC_R2000iA165F-STL/J5.stl');
+        joints.push(new THREE.Mesh(joint5, darkGray));
+        // model is loaded in mm so it need to scale to meters
+        joints[5].geometry.scale(0.001, 0.001, 0.001);
+        scene.add(joints[5]);
+    }
 };
 
 load_geometries();
