@@ -41,9 +41,12 @@ camera.lookAt(scene.position);
 renderer.setSize(width, height);
 three_view.appendChild(renderer.domElement);
 
+//let axesHelper = new THREE.AxesHelper( 5 );
+//scene.add( axesHelper );
+
 // Create plane (Floor)
 {
-    let geometryPlane = new THREE.PlaneBufferGeometry(40, 40); // 40 m x 40 m floor
+    let geometryPlane = new THREE.PlaneBufferGeometry(40, 40); //  40 m x 40 m floor
     let material = new THREE.MeshPhongMaterial({
         color:0xAAAAAA,
         specular: 0x101010
@@ -170,7 +173,7 @@ const load_geometries = async () => {
 // offset to move joints to correct position
 let offsets = [];
 
-// get robot geometries and build robot 3D-model
+// get robot geometries and build robot kinematics
 load_geometries().then(() =>{
     
     // move all part to origin 
@@ -179,13 +182,12 @@ load_geometries().then(() =>{
     // J3: [268.69, 1744.13, -196.85] Z
     // J4: [1315.19, 1969.13, 0.15] X
     // J5: [1548.69, 1969.13, 87.15] Z
-    // J6: [1763.69, 1969.13, 20.47] X
 
     joints[1].geometry.translate(0, -0.282, 0); 
     joints[2].geometry.translate(-0.312, -0.670, 0.117);
     joints[3].geometry.translate(-0.26869, -1.74413, 0.19685);
-    joints[4].geometry.translate(-1.31519, -1.96913, 0.15);
-    joints[5].geometry.translate(-1.54869, -1.96913, 0.8715);
+    joints[4].geometry.translate(-1.31519, -1.96913, -0.0015);
+    joints[5].geometry.translate(-1.54869, -1.96913, -0.08715);
 
     // add robot base
     scene.add(joints[0]);
@@ -193,38 +195,38 @@ load_geometries().then(() =>{
     // rotate robot to corret position z-axis to up
     joints[0].rotation.set(THREE.Math.degToRad(90),0,0);
 
-    // J1 crete new group of transformations 
+    // J1 create new group of transformations 
     offsets.push(new THREE.Group());
     // distance from origo to rotating joint
     offsets[0].position.set(0, 0.282,0);
     joints[0].add(offsets[0]);
     offsets[0].add(joints[1]);
 
-    // J2 crete new group of transformations 
+    // J2 create new group of transformations 
     offsets.push(new THREE.Group());
     // calculate joints difference J2 -J1 offset where joint attached
     offsets[1].position.set(0.312, 0.388, -0.117);
     joints[1].add(offsets[1]);
     offsets[1].add(joints[2]);
 
-    // J3 crete new group of transformations 
+    // J3 create new group of transformations 
     offsets.push(new THREE.Group());
     // calculate joints difference J3 -J2 offset where joint attached
     offsets[2].position.set(-0.04331, 1.07413, -0.0798);
     joints[2].add(offsets[2]);
     offsets[2].add(joints[3]);
 
-    // J4 crete new group of transformations 
+    // J4 create new group of transformations 
     offsets.push(new THREE.Group());
     // calculate joints difference J4 -J3 offset where joint attached
-    offsets[3].position.set(1.0465, 0.225, 0.0468);
+    offsets[3].position.set(1.0465, 0.225, 0.19835);
     joints[3].add(offsets[3]);
     offsets[3].add(joints[4]);
 
-    // J5 crete new group of transformations 
+    // J5 create new group of transformations 
     offsets.push(new THREE.Group());
     // calculate joints difference J5 -J4 offset where joint attached
-    offsets[4].position.set(0.2335, 0, -0.7215);
+    offsets[4].position.set(0.2335, 0, 0.08565);
     joints[4].add(offsets[4]);
     offsets[4].add(joints[5]);
 
@@ -276,6 +278,7 @@ mqtt_client.on('message', (topic, message) => {
     // wait until all joint geometries are loaded
     if (joints.length == 6){
 
+        // link joint data to move 3D-model joints
         const joint_data = JSON.parse(message);
         // read values and rotate joint aroud y-axis
         joints[1].rotation.set(0, THREE.Math.degToRad(joint_data.joints[0]), 0);
@@ -283,6 +286,10 @@ mqtt_client.on('message', (topic, message) => {
         joints[2].rotation.set(0,0,THREE.Math.degToRad(joint_data.joints[1]));
         // read values and rotate joint aroud Z-axis
         joints[3].rotation.set(0,0,THREE.Math.degToRad(joint_data.joints[2]) - THREE.Math.degToRad(joint_data.joints[1]));
+        // read values and rotate joint aroud x-axis
+        joints[4].rotation.set(THREE.Math.degToRad(joint_data.joints[3]),0, 0);
+        // read values and rotate joint aroud z-axis
+        joints[5].rotation.set(0, 0,THREE.Math.degToRad(joint_data.joints[4]));
     }  
 });
 
