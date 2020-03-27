@@ -123,7 +123,7 @@ const load_geometries = async () => {
         joints.push(new THREE.Mesh(robot_base, darkGray));
         // model is loaded in mm so it need to scale to meters
         joints[0].geometry.scale(0.001, 0.001, 0.001);
-        scene.add(joints[0]);
+        // scene.add(joints[0]);
     }{
         // get and draw joint 1
         let joint1= await load_stl('./FANUC_R2000iA165F-STL/J1-1.stl');
@@ -133,7 +133,7 @@ const load_geometries = async () => {
         joints.push(new THREE.Mesh(joint1, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[1].geometry.scale(0.001, 0.001, 0.001);
-        scene.add(joints[1]);
+        // scene.add(joints[1]);
       
     }{
         // get and draw joint 2
@@ -141,33 +141,98 @@ const load_geometries = async () => {
         joints.push(new THREE.Mesh(joint2, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[2].geometry.scale(0.001, 0.001, 0.001);
-        scene.add(joints[2]);
+        // scene.add(joints[2]);
     }{
         // get and draw joint 3
         let joint3= await load_stl('./FANUC_R2000iA165F-STL/J3.stl');
         joints.push(new THREE.Mesh(joint3, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[3].geometry.scale(0.001, 0.001, 0.001);
-        scene.add(joints[3]);
+        // scene.add(joints[3]);
     }{
         // get and draw joint 4
         let joint4= await load_stl('./FANUC_R2000iA165F-STL/J4.stl');
         joints.push(new THREE.Mesh(joint4, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[4].geometry.scale(0.001, 0.001, 0.001);
-        scene.add(joints[4]);
+        // scene.add(joints[4]);
     }{
         // get and draw joint 5
         let joint5= await load_stl('./FANUC_R2000iA165F-STL/J5.stl');
         joints.push(new THREE.Mesh(joint5, yellow));
         // model is loaded in mm so it need to scale to meters
         joints[5].geometry.scale(0.001, 0.001, 0.001);
-        scene.add(joints[5]);
+        // scene.add(joints[5]);
     }
 };
 
-// get robot geometries 
-load_geometries();
+// offset to move joints to correct position
+let offsets = [];
+
+// get robot geometries and build robot 3D-model
+load_geometries().then(() =>{
+    
+    // move all part to origin 
+    // J1: [0, 282,0] Y
+    // J2: [312, 670, -117] Z
+    // J3: [268.69, 1744.13, -196.85] Z
+    // J4: [1315.19, 1969.13, 0.15] X
+    // J5: [1548.69, 1969.13, 87.15] Z
+    // J6: [1763.69, 1969.13, 20.47] X
+
+    joints[0].geometry.translate(0, 0, 0);
+    joints[1].geometry.translate(0, -0.282, 0); 
+    joints[2].geometry.translate(-0.312, -0.670, 0.117);
+    joints[3].geometry.translate(-0.26869, -1.74413, 0.19685);
+    joints[4].geometry.translate(-1.131519, -1.96913, 0.15);
+    joints[5].geometry.translate(-1.54869, -1.96913, 0.8715);
+
+    // add robot base
+    scene.add(joints[0]);
+
+    // rotate robot to corret positoin z-axis to up
+    joints[0].rotation.set(THREE.Math.degToRad(90),0,0);
+
+    // J1 crete new group of transformations 
+    offsets.push(new THREE.Group());
+    // distance from origo to rotating joint
+    offsets[0].position.set(0, 0.282,0);
+    joints[0].add(offsets[0]);
+    offsets[0].add(joints[1]);
+
+    // J2 crete new group of transformations 
+    offsets.push(new THREE.Group());
+    // calculate joints difference J2 -J1 
+    // offsets[1].position.set((joints[2].x - joints[1].x) / 1000, (joints[3].y - joints[2].y) / 1000, -0.117),(joints[3].z - joints[2].z) / 1000 ;
+    offsets[1].position.set(0.312, 0.388, -0.117);
+    joints[1].add(offsets[1]);
+    offsets[1].add(joints[2]);
+
+    // J3 crete new group of transformations 
+    offsets.push(new THREE.Group());
+    // calculate joints difference J3 -J2 
+    // offsets[2].position.set((joints[3].x - joints[2].x) / 1000, (joints[3].y - joints[2].y) / 1000, (joints[3].z - joints[2].z) / 1000);
+    offsets[2].position.set(-0.04331, 1.07413, -0.0798);
+    joints[2].add(offsets[2]);
+    offsets[2].add(joints[3]);
+
+    // J4 crete new group of transformations 
+    offsets.push(new THREE.Group());
+    // calculate joints difference J4 -J3
+    // offsets[2].position.set((joints[4].x - joints[3].x) / 1000, (joints[4].y - joints[3].y) / 1000, (joints[4].z - joints[3].z) / 1000);
+    offsets[3].position.set(-1.174829, -0.895, 0.07);
+    joints[3].add(offsets[3]);
+    offsets[3].add(joints[4]);
+
+    // J4 crete new group of transformations 
+    //offsets.push(new THREE.Group());
+    // calculate joints difference J4 -J3
+    // offsets[2].position.set((joints[4].x - joints[3].x) / 1000, (joints[4].y - joints[3].y) / 1000, (joints[4].z - joints[3].z) / 1000);
+    //offsets[4].position.set(-1.174829, -0.895, 0.07);
+    //joints[4].add(offsets[4]);
+    //offsets[4].add(joints[5]);
+
+});
 
 // Use orbit controls to control camera with mouse
 const orbit_controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -197,3 +262,31 @@ const resize = () => {
 
 // Run resize function 
 window.onresize = resize;
+
+
+// MQTT-client connection
+//-----------------------
+
+const MQTT_BROKER_ADDRESS = 'wss://auoh20-mqtt-broker.herokuapp.com';
+const mqtt_client = mqtt.connect(MQTT_BROKER_ADDRESS);
+
+mqtt_client.on('connect', () => {
+    console.log('connected to MQTT-server');
+    mqtt_client.subscribe('joints');
+});
+
+mqtt_client.on('message', (topic, message) => {
+
+    // wait until all joint geometries are loaded
+    if (joints.length == 6){
+
+        const joint_data = JSON.parse(message);
+        // read values and rotate joint aroud y-axis
+        joints[1].rotation.set(0, THREE.Math.degToRad(joint_data.joints[0]), 0);
+        // read values and rotate joint aroud Z-axis
+        joints[2].rotation.set(0,0,THREE.Math.degToRad(joint_data.joints[1]));
+        // read values and rotate joint aroud Z-axis
+        joints[3].rotation.set(0,0,THREE.Math.degToRad(joint_data.joints[2]) - THREE.Math.degToRad(joint_data.joints[1]));
+    }  
+});
+
