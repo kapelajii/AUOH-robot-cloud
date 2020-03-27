@@ -129,6 +129,7 @@ const load_geometries = async () => {
         let joint1= await load_stl('./FANUC_R2000iA165F-STL/J1-1.stl');
         let joint1_2= await load_stl('./FANUC_R2000iA165F-STL/J1-2.stl');
         // merge joint1_2 to joint1 parts together
+        
         joint1.merge(joint1_2);
         joints.push(new THREE.Mesh(joint1, yellow));
         // model is loaded in mm so it need to scale to meters
@@ -180,17 +181,16 @@ load_geometries().then(() =>{
     // J5: [1548.69, 1969.13, 87.15] Z
     // J6: [1763.69, 1969.13, 20.47] X
 
-    joints[0].geometry.translate(0, 0, 0);
     joints[1].geometry.translate(0, -0.282, 0); 
     joints[2].geometry.translate(-0.312, -0.670, 0.117);
     joints[3].geometry.translate(-0.26869, -1.74413, 0.19685);
-    joints[4].geometry.translate(-1.131519, -1.96913, 0.15);
+    joints[4].geometry.translate(-1.31519, -1.96913, 0.15);
     joints[5].geometry.translate(-1.54869, -1.96913, 0.8715);
 
     // add robot base
     scene.add(joints[0]);
 
-    // rotate robot to corret positoin z-axis to up
+    // rotate robot to corret position z-axis to up
     joints[0].rotation.set(THREE.Math.degToRad(90),0,0);
 
     // J1 crete new group of transformations 
@@ -202,35 +202,31 @@ load_geometries().then(() =>{
 
     // J2 crete new group of transformations 
     offsets.push(new THREE.Group());
-    // calculate joints difference J2 -J1 
-    // offsets[1].position.set((joints[2].x - joints[1].x) / 1000, (joints[3].y - joints[2].y) / 1000, -0.117),(joints[3].z - joints[2].z) / 1000 ;
+    // calculate joints difference J2 -J1 offset where joint attached
     offsets[1].position.set(0.312, 0.388, -0.117);
     joints[1].add(offsets[1]);
     offsets[1].add(joints[2]);
 
     // J3 crete new group of transformations 
     offsets.push(new THREE.Group());
-    // calculate joints difference J3 -J2 
-    // offsets[2].position.set((joints[3].x - joints[2].x) / 1000, (joints[3].y - joints[2].y) / 1000, (joints[3].z - joints[2].z) / 1000);
+    // calculate joints difference J3 -J2 offset where joint attached
     offsets[2].position.set(-0.04331, 1.07413, -0.0798);
     joints[2].add(offsets[2]);
     offsets[2].add(joints[3]);
 
     // J4 crete new group of transformations 
     offsets.push(new THREE.Group());
-    // calculate joints difference J4 -J3
-    // offsets[2].position.set((joints[4].x - joints[3].x) / 1000, (joints[4].y - joints[3].y) / 1000, (joints[4].z - joints[3].z) / 1000);
-    offsets[3].position.set(-1.174829, -0.895, 0.07);
+    // calculate joints difference J4 -J3 offset where joint attached
+    offsets[3].position.set(1.0465, 0.225, 0.0468);
     joints[3].add(offsets[3]);
     offsets[3].add(joints[4]);
 
-    // J4 crete new group of transformations 
-    //offsets.push(new THREE.Group());
-    // calculate joints difference J4 -J3
-    // offsets[2].position.set((joints[4].x - joints[3].x) / 1000, (joints[4].y - joints[3].y) / 1000, (joints[4].z - joints[3].z) / 1000);
-    //offsets[4].position.set(-1.174829, -0.895, 0.07);
-    //joints[4].add(offsets[4]);
-    //offsets[4].add(joints[5]);
+    // J5 crete new group of transformations 
+    offsets.push(new THREE.Group());
+    // calculate joints difference J5 -J4 offset where joint attached
+    offsets[4].position.set(0.2335, 0, -0.7215);
+    joints[4].add(offsets[4]);
+    offsets[4].add(joints[5]);
 
 });
 
